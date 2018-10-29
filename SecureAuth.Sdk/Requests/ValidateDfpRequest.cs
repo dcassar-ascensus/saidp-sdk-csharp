@@ -21,7 +21,9 @@ namespace SecureAuth.Sdk
 
         public ValidateDfpRequest(string fpJson)
         {
-            this.Fingerprint = JsonSerializer.Deserialize<ValidateDfpRequest>(fpJson).Fingerprint;
+            // this was the original version. it didn't work (DJC 29Oct2018)
+            //this.Fingerprint = JsonSerializer.Deserialize<ValidateDfpRequest>(fpJson).Fingerprint;
+            this.Fingerprint = JsonSerializer.Deserialize<FingerprintWrapper>(fpJson);
         }
     }
 }
