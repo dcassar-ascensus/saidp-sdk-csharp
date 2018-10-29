@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 
 namespace SecureAuth.Sdk
 {
@@ -16,7 +17,7 @@ namespace SecureAuth.Sdk
                     result = HashTool.SHA256HashToBase64(appKey, representation);
                 }
             }
-            
+
             return result;
         }
 
@@ -26,7 +27,8 @@ namespace SecureAuth.Sdk
 
             if (request.Headers.Date.HasValue)
             {
-                var dateMillis = request.Headers.Date.Value.UtcDateTime.ToString("ddd, dd MMM yyyy HH:mm:ss.fff G\\MT");  
+                // add something unique as part of the dateMills to give higher resolution
+                var dateMillis = request.Headers.Date.Value.UtcDateTime.ToString($"ddd, dd MMM yyyy HH:mm:ss.fff{Math.Abs(Guid.NewGuid().GetHashCode())} G\\MT");
                 request.Headers.Add("X-SA-Ext-Date", dateMillis); // used in version 9.2+
                 request.Headers.Remove("Date");
                 var httpMethod = request.Method.Method;
@@ -44,8 +46,7 @@ namespace SecureAuth.Sdk
                     string.Join("\n", httpMethod, dateMillis, appId, uri, content);
             }
 
-            return result;        
-
+            return result;
         }
     }
 }
