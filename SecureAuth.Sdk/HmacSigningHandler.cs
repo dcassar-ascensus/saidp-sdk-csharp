@@ -24,7 +24,12 @@ namespace SecureAuth.Sdk
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            request.Headers.Date = new DateTimeOffset(DateTime.Now, DateTime.Now - DateTime.UtcNow);
+            //request.Headers.Date = new DateTimeOffset(DateTime.Now, DateTime.Now - DateTime.UtcNow);  // JH 112618 original code from sdk
+            // JH 112618 new code to handle time offset 
+            // https://docs.microsoft.com/en-us/dotnet/api/system.datetimeoffset.-ctor?view=netframework-4.7.2#System_DateTimeOffset__ctor_System_DateTime_System_TimeSpan_
+            DateTime timeNow = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+            request.Headers.Date = new DateTimeOffset(timeNow, TimeZoneInfo.Local.GetUtcOffset(timeNow));
+            // ~JH
             var hash = HmacBasicAuthenticationHelper.BuildAuthorizationHeaderParameter(AppId, AppKey, request);
 
             var headerValue = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Format("{0}:{1}", AppId, hash)));
